@@ -28,10 +28,10 @@ namespace DatingApp.API.Controllers
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserForRegisterDto userDTO)
-        {            
+        {
             userDTO.Username = userDTO.Username.ToLower();
 
-            if(await _repo.UserExists(userDTO.Username))
+            if (await _repo.UserExists(userDTO.Username))
                 return BadRequest("Username alredy exists");
 
             var userToCreate = new User
@@ -46,12 +46,12 @@ namespace DatingApp.API.Controllers
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserForLoginDto userDTO)
-        { 
+        {
             User user = await _repo.Login(userDTO.UserName.ToLower(), userDTO.Password);
 
             if (user == null)
                 return Unauthorized();
-            
+
             var clains = new[]{
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName)
@@ -61,7 +61,8 @@ namespace DatingApp.API.Controllers
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-            var tokenDescriptor = new SecurityTokenDescriptor{
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
                 Subject = new ClaimsIdentity(clains),
                 Expires = DateTime.Now.AddDays(1),
                 SigningCredentials = creds
@@ -69,7 +70,7 @@ namespace DatingApp.API.Controllers
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return Ok( new{ token = tokenHandler.WriteToken(token)});
+            return Ok(new { token = tokenHandler.WriteToken(token) });
         }
     }
 }
