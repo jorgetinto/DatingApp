@@ -29,8 +29,11 @@ namespace DatingApp.API.Data
 
         public async Task<Like> GetLike(int userId, int recipientId)
         {
-            return await _context.Likes
-                        .FirstOrDefaultAsync(u => u.LikeeId==userId && u.LikeeId == recipientId);
+            return await _context
+                        .Likes
+                        .FirstOrDefaultAsync(
+                            u => u.LikerId == userId 
+                            && u.LikeeId == recipientId);
         }
 
         public async Task<Photo> GetMainPhotoForUser(int userId)
