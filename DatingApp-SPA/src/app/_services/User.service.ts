@@ -16,6 +16,7 @@ export class UserService {
 
   getUsers(page?, itemsPerPage?, userParams?, likesParam?): Observable<PaginatedResult<User[]>>{
     const paginatedResult: PaginatedResult<User[]> = new PaginatedResult<User[]>();
+
     let params = new HttpParams();
 
     if (page != null && itemsPerPage != null) {
@@ -31,11 +32,11 @@ export class UserService {
     }
 
     if (likesParam === 'Likers') {
-      params = params.append('Likers', 'true');
+      params = params.append('likers', 'true');
     }
 
     if (likesParam === 'Likees') {
-      params = params.append('Likees', 'true');
+      params = params.append('likees', 'true');
     }
 
     return this.http.get<User[]>(this.baseUrl + 'users', { observe: 'response', params})
