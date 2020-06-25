@@ -63,7 +63,9 @@ namespace DatingApp.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateMessage(int userId, MessageForCreationDto messageForCreationDto)
         {
-            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            var sender = await _repository.GetUser(userId);
+
+            if (sender.Id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
             
             messageForCreationDto.SenderId = userId;
@@ -79,7 +81,7 @@ namespace DatingApp.API.Controllers
 
             if (await _repository.SaveAll())
             {
-                var messageToReturn = _mapper.Map<MessageForCreationDto>(message);
+                var messageToReturn = _mapper.Map<MessageToReturnDto>(message);
                 return CreatedAtRoute("GetMessage", new {userId, id = message.Id}, messageToReturn);
             }
 
@@ -97,6 +99,29 @@ namespace DatingApp.API.Controllers
             var messageThread = _mapper.Map<IEnumerable<MessageToReturnDto>>(messageFromRepo);
 
             return Ok(messageThread);
+        }
+
+        [HttpPost("{id}")]
+        public async Task<IActionResult> DeleteMessage(int id, int userId)
+        {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+            
+            var messageFormRepo = await _repository.GetMessage(id);
+
+            if (messageFormRepo.SenderId == userId)
+                messageFormRepo.SenderDeleted = true;
+            
+            if (messageFormRepo.RecipientId == userId)
+                messageFormRepo.RecipientDeleted = true;
+            
+            if (messageFormRepo.SenderDeleted && messageFormRepo.RecipientDeleted)
+                _repository.Delete(messageFormRepo);
+            
+            if (await _repository.SaveAll())
+                return NoContent();
+            
+            throw new Exception("Error deleting the message");
         }
 
     }
