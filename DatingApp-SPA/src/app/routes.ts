@@ -12,6 +12,7 @@ import { MemberEditResolver } from './_resolvers/member-edit.resolver';
 import { PreventUnsavedChanges } from './_guards/prevent-unsaved-changes.guard';
 import { ListsResolver } from './_resolvers/Lists.resolver';
 import { MessagesResolver } from './_resolvers/messages.resolver';
+import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 
 export const appRoutes: Routes = [
     { path: 'home', component: HomeComponent},
@@ -20,12 +21,16 @@ export const appRoutes: Routes = [
         runGuardsAndResolvers: 'always',
         canActivate: [AuthGuard],
         children: [
-            { path: 'members', component: MemberListComponent, canActivate: [AuthGuard], resolve: {users: MemberListResolver}},
-            { path: 'members/:id', component: MemberDetailComponent, resolve: {user: MemberDetailResolver}},
+            { path: 'members', component: MemberListComponent, canActivate: [AuthGuard], resolve: {users: MemberListResolver}
+                    , data: {roles: ['Member', 'Admin', 'Moderator']}},
+            { path: 'members/:id', component: MemberDetailComponent, resolve: {user: MemberDetailResolver}
+                    , data: {roles: ['Member', 'Admin', 'Moderator']}},
             { path: 'member/edit', component: MemberEditComponent,
-                    resolve: {user: MemberEditResolver}, canDeactivate: [PreventUnsavedChanges]},
-            { path: 'messages', component: MessagesComponent, resolve: {messages: MessagesResolver}},
-            { path: 'lists', component: ListComponent, resolve: {users: ListsResolver}}
+                    resolve: {user: MemberEditResolver}, canDeactivate: [PreventUnsavedChanges]
+                    , data: {roles: ['Member', 'Admin', 'Moderator']}},
+            { path: 'messages', component: MessagesComponent, resolve: {messages: MessagesResolver}, data: {roles: ['Member', 'Admin', 'Moderator']}},
+            { path: 'lists', component: ListComponent, resolve: {users: ListsResolver}, data: {roles: ['Member', 'Admin', 'Moderator']}},
+            { path: 'admin', component: AdminPanelComponent, data: {roles: ['Admin', 'Moderator']}}
         ]
     },
     { path: '**', redirectTo: 'home', pathMatch: 'full'},
