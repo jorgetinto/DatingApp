@@ -35,7 +35,18 @@ export class UserManagementComponent implements OnInit {
       roles: this.getRolesArray(user)
     };
     this.bsModalRef = this.modalService.show(RolesModalComponent, {initialState});
-    this.bsModalRef.content.closeBtnName = 'Close';
+    this.bsModalRef.content.updateSelectedRoles.subscribe((values: any) => {
+      const rolesToUpdate = {
+        roleNames: [...values.filter(el => el.checked === true).map(el => el.name)]
+      };
+      if (rolesToUpdate) {
+        this.adminService.updateUserRoles(user, rolesToUpdate).subscribe(() => {
+          user.roles = [...rolesToUpdate.roleNames];
+        }, error => {
+          console.log(error);
+        });
+      }
+    });
   }
 
   private getRolesArray(user) {
@@ -48,8 +59,10 @@ export class UserManagementComponent implements OnInit {
       {name: 'VIP', value: 'VIP'},
     ];
 
+    // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < availableRoles.length; i++) {
       let isMatch = false;
+      // tslint:disable-next-line: prefer-for-of
       for (let j = 0; j < userRoles.length; j++) {
         if (availableRoles[i].name === userRoles[j]) {
           isMatch = true;

@@ -21,6 +21,7 @@ export class PhotoEditorComponent implements OnInit {
   baseUrl = environment.apiUrl;
   currentMain: Photo;
 
+
   constructor(private authService: AuthService, private userService: UserService, private alertify: AlertifyServiceService) { }
 
   ngOnInit() {
@@ -53,6 +54,7 @@ export class PhotoEditorComponent implements OnInit {
           dateAdded: res.dateAdded,
           description: res.description,
           isMain: res.isMain,
+          isApproved: res.isApproved
         };
         this.photos.push(photo);
         if (photo.isMain) {
